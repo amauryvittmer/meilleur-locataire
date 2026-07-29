@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --bg: #F1F3F6;
@@ -448,6 +449,13 @@ const MESSAGE_FORMULAIRE = "Laissez-nous vos coordonnées, nous vous contactons 
 const MESSAGE_CONFIRMATION = "Merci ! Vous serez contacté(e) très prochainement.";
 /* ================================ */
 
+/* ===== CONFIG SUPABASE — à remplir avec vos identifiants ===== */
+const SUPABASE_URL = "https://VOTRE-PROJET.supabase.co"; // ex: https://dqxqdfzehwfwzwtskzkn.supabase.co
+const SUPABASE_ANON_KEY = "VOTRE_CLE_ANON_ICI"; // la clé "anon public" copiée dans Settings > API Keys
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentCandidatureId = null;
+/* ================================================================ */
+
 let parcours = "dossiers"; // "dossiers" | "recherche"
 let importTab = "liens";
 let dossiers = []; // { id, ref, status: 'ok' | 'erreur' }
@@ -534,7 +542,7 @@ dropzone.addEventListener("drop", (e) => addFiles(e.dataTransfer.files));
 
 function addFiles(fileList) {
   Array.from(fileList).forEach((f) => {
-    dossiers.push({ id: dossierIdSeq++, ref: f.name, status: "ok", source: "fichier" });
+    dossiers.push({ id: dossierIdSeq++, ref: f.name, status: "ok", source: "fichier", file: f });
   });
   renderDossierList();
 }
@@ -556,7 +564,7 @@ dropzonePhotos.addEventListener("drop", (e) => addPhotos(e.dataTransfer.files));
 
 function addPhotos(fileList) {
   Array.from(fileList).forEach((f) => {
-    photos.push({ id: photoIdSeq++, ref: f.name });
+    photos.push({ id: photoIdSeq++, ref: f.name, file: f });
   });
   renderPhotoList();
 }
@@ -650,27 +658,61 @@ function goToPage2() {
   document.getElementById("formulaireTitre").textContent = TITRE_FORMULAIRE;
   document.getElementById("formulaireMessage").textContent = MESSAGE_FORMULAIRE;
 
-  // Envoi en tâche de fond, n'affecte pas l'écran affiché
-  const payload = {
-    parcours,
-    loyer: document.getElementById("loyer").value,
-    revenuCandidat: document.getElementById("revenuCandidat").value,
-    typeContrat: document.getElementById("typeContrat").value,
-    ancienneteMois: document.getElementById("ancienneteMois").value,
-    aGarant: document.getElementById("aGarant").checked,
-    revenuGarant: document.getElementById("revenuGarant").value,
-    historiqueLocatif: document.getElementById("historiqueLocatif").value,
-    notesLibres: document.getElementById("notesLibres").value,
-    dossiers: dossiers.map((d) => ({ ref: d.ref, source: d.source, status: d.status })),
-    bienEmplacement: document.getElementById("bienEmplacement").value,
-    bienDescription: document.getElementById("bienDescription").value,
-    photos: photos.map((p) => p.ref),
-  };
-  fetch("/api/analyze", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  }).catch(() => {});
+  // Envoi en tâche de fond (upload + enregistrement Supabase), n'affecte pas l'écran affiché
+  envoyerVersSupabase().catch((err) => console.error("Erreur envoi Supabase :", err));
+}
+
+async function uploaderFichiers(items) {
+  // items = tableau de { ref, file } (dossiers ou photos). Upload chaque fichier réel
+  // vers le bucket "documents" et renvoie la liste des chemins stockés.
+  const chemins = [];
+  for (const item of items) {
+    if (!item.file) continue; // liens DossierFacile : pas de fichier à uploader
+    const cheminUnique = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${item.file.name}`;
+    const { error } = await supabaseClient.storage.from("documents").upload(cheminUnique, item.file);
+    if (error) {
+      console.error("Échec upload", item.file.name, error);
+      continue;
+    }
+    chemins.push(cheminUnique);
+  }
+  return chemins;
+}
+
+async function envoyerVersSupabase() {
+  const [cheminsDossiers, cheminsPhotos] = await Promise.all([
+    uploaderFichiers(dossiers),
+    uploaderFichiers(photos),
+  ]);
+
+  // Les liens DossierFacile (sans fichier) sont conservés tels quels dans le champ "dossiers"
+  const liensDossierFacile = dossiers.filter((d) => d.source === "lien").map((d) => d.ref);
+
+  const { data, error } = await supabaseClient
+    .from("candidatures")
+    .insert({
+      parcours,
+      loyer: document.getElementById("loyer").value || null,
+      revenu_candidat: document.getElementById("revenuCandidat").value || null,
+      type_contrat: document.getElementById("typeContrat").value,
+      anciennete_mois: document.getElementById("ancienneteMois").value || null,
+      a_garant: document.getElementById("aGarant").checked,
+      revenu_garant: document.getElementById("revenuGarant").value || null,
+      historique_locatif: document.getElementById("historiqueLocatif").value,
+      notes_libres: document.getElementById("notesLibres").value,
+      bien_emplacement: document.getElementById("bienEmplacement").value,
+      bien_description: document.getElementById("bienDescription").value,
+      dossiers: { fichiers: cheminsDossiers, liens: liensDossierFacile },
+      photos: cheminsPhotos,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Échec insertion candidature :", error);
+    return;
+  }
+  currentCandidatureId = data.id;
 }
 
 /* ---------- Formulaire de coordonnées ---------- */
