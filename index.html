@@ -8,10 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  window.SUPABASE_URL = "https://dqxqdfzehwfwzwtskzkn.supabase.co";
-  window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxeHFkZnplaHdmd3p3dHNremtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMzc0NDUsImV4cCI6MjEwMDkxMzQ0NX0.k-OjQxbAu6rOQ_2p0VvnKgJfPk8Yebgz56QwfBkHCzI";
-</script>
+<script src="config.js"></script>
 <style>
   :root {
     --bg: #F1F3F6;
@@ -208,6 +205,7 @@
     .parcours-grid { grid-template-columns: 1fr; }
   }
 </style>
+<base target="_blank">
 </head>
 <body>
 <main>
@@ -652,8 +650,6 @@ function goToPage2() {
 
   document.getElementById("formulaireTitre").textContent = TITRE_FORMULAIRE;
   document.getElementById("formulaireMessage").textContent = MESSAGE_FORMULAIRE;
-
-  envoyerVersSupabase().catch((err) => console.error("Erreur envoi Supabase :", err));
 }
 
 async function uploaderFichiers(items, sousDossier) {
@@ -671,12 +667,12 @@ async function uploaderFichiers(items, sousDossier) {
   return chemins;
 }
 
-async function envoyerVersSupabase() {
+async function envoyerTout() {
   const [cheminsDossiers, cheminsPhotos] = await Promise.all([
     uploaderFichiers(dossiers, "dossiers"),
     uploaderFichiers(photos, "photos"),
   ]);
- 
+
   const liensDossierFacile = dossiers.filter((d) => d.source === "lien").map((d) => d.ref);
 
   const { error } = await supabaseClient
@@ -695,11 +691,16 @@ async function envoyerVersSupabase() {
       bien_description: document.getElementById("bienDescription").value,
       dossiers: { fichiers: cheminsDossiers, liens: liensDossierFacile },
       photos: cheminsPhotos,
+      prenom: document.getElementById("leadPrenom").value.trim() || null,
+      nom: document.getElementById("leadNom").value.trim() || null,
+      email: document.getElementById("leadEmail").value.trim() || null,
+      tel: document.getElementById("leadTel").value.trim() || null,
+      lead_type: leadType || null,
     });
 
   if (error) {
     console.error("Échec insertion candidature :", error);
-    return;
+    throw error;
   }
 }
 
@@ -737,16 +738,15 @@ document.getElementById("leadSubmitBtn").addEventListener("click", async () => {
   btn.textContent = "Envoi…";
 
   try {
-    await fetch("/api/leads", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prenom, nom, type: leadType, email, tel, parcours }),
-    }).catch(() => {});
-  } finally {
+    await envoyerTout();
     document.getElementById("attenteCard").style.display = "none";
     document.getElementById("formulaireCard").style.display = "none";
     document.getElementById("confirmationCard").style.display = "block";
     document.getElementById("confirmationMessage").textContent = MESSAGE_CONFIRMATION;
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = "Recevoir mon résultat";
+    alert("Une erreur est survenue. Vérifiez la console (F12) et réessayez.");
   }
 });
 
