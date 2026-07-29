@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dossier Clair — Évaluation dossier locataire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F1F3F6;
+    --surface: #FFFFFF;
+    --surface-alt: #F5F7FA;
+    --border: #E0E4EA;
+    --text: #1B2733;
+    --text-secondary: #5B6979;
+    --text-faint: #92A0AD;
+    --accent: #14509B;
+    --accent-dark: #0C3866;
+    --accent-soft: #E8F0FB;
+    --accent-soft-border: #C7DCF3;
+    --cta: #FF6A3D;
+    --cta-dark: #E8552A;
+    --danger: #A3312D;
+    --danger-soft: #F6E4E2;
+    --radius-lg: 12px;
+    --radius-md: 8px;
+    --radius-sm: 6px;
+    --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 2.25rem 1.5rem 4rem; }
+
+  /* ---------- Header ---------- */
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-mark { width: 30px; height: 30px; flex: none; }
+  .brand-name { font-family: var(--font-display); font-weight: 600; font-size: 17px; letter-spacing: -0.01em; }
+  .step-pill {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
+    color: var(--accent-dark); background: var(--accent-soft); border: 1px solid var(--accent-soft-border);
+    padding: 5px 11px 5px 9px; border-radius: 999px; white-space: nowrap;
+  }
+
+  h1 { font-family: var(--font-display); font-size: 25px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 6px; }
+  .sub { color: var(--text-secondary); font-size: 14.5px; line-height: 1.5; margin: 0 0 14px; max-width: 52ch; }
+
+  .bien-tag {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600;
+    color: var(--text); background: var(--surface-alt); border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 999px; margin-bottom: 28px;
+  }
+  .bien-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex: none; }
+
+  /* ---------- Cards / sections ---------- */
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 22px; margin-bottom: 18px; box-shadow: 0 1px 2px rgba(20,80,155,.05);
+  }
+  .card-head { display: flex; align-items: center; gap: 9px; margin-bottom: 4px; }
+  .card-head svg { flex: none; color: var(--accent); }
+  h2 {
+    font-family: var(--font-display); font-size: 16px; font-weight: 700; margin: 0;
+    letter-spacing: -0.005em;
+  }
+  .card-desc { color: var(--text-secondary); font-size: 13px; margin: 4px 0 18px; }
+
+  form { display: flex; flex-direction: column; gap: 16px; }
+  .row { display: flex; gap: 12px; }
+  .field { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+  label.field-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+  input, select, textarea {
+    height: 40px; padding: 0 12px; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); font-size: 14px; font-family: var(--font-body); background: #fff; color: var(--text);
+  }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  textarea { height: auto; padding: 10px 12px; resize: vertical; line-height: 1.5; }
+
+  /* ---------- Signal (case "a un garant") ---------- */
+  .signal-line {
+    display: flex; align-items: center; gap: 10px; padding: 10px 4px; border-radius: var(--radius-sm);
+  }
+  .signal-line:hover { background: var(--surface-alt); }
+  .signal-line input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--accent); flex: none; }
+  .signal-line label { font-size: 13.5px; color: var(--text); flex: 1; cursor: pointer; }
+
+  /* ---------- Parcours ---------- */
+  .parcours-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .parcours-card {
+    text-align: left; cursor: pointer; padding: 16px; border-radius: var(--radius-md);
+    border: 1.5px solid var(--border); background: #fff; display: flex; flex-direction: column; gap: 8px;
+    transition: border-color .15s, background .15s;
+  }
+  .parcours-card:hover { border-color: var(--accent); }
+  .parcours-card.active { border-color: var(--accent); background: var(--accent-soft); }
+  .parcours-card .top { display: flex; align-items: center; justify-content: space-between; }
+  .parcours-card .top svg { color: var(--accent); }
+  .parcours-card .check {
+    width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--border); flex: none;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .parcours-card.active .check { border-color: var(--accent); background: var(--accent); }
+  .parcours-card .check svg { display: none; color: #fff; width: 11px; height: 11px; }
+  .parcours-card.active .check svg { display: block; }
+  .parcours-card .title { font-size: 14px; font-weight: 700; }
+  .parcours-card .desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.45; margin: 0; }
+
+  /* ---------- Import ---------- */
+  .import-block { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--surface-alt); }
+  .import-counter { font-size: 13.5px; font-weight: 700; color: var(--accent-dark); margin-bottom: 12px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+  .tab-btn {
+    display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: #fff; color: var(--text-secondary); font-size: 12.5px; font-weight: 600; cursor: pointer;
+  }
+  .tab-btn.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .dropzone {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    border: 1.5px dashed var(--border); border-radius: var(--radius-md); padding: 26px 16px;
+    text-align: center; color: var(--text-secondary); font-size: 13px; background: var(--surface-alt);
+  }
+  .dropzone svg { color: var(--accent); }
+  .dropzone .browse {
+    margin-top: 4px; border: 1px solid var(--accent); color: var(--accent-dark); background: #fff;
+    padding: 7px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 600; cursor: pointer;
+  }
+
+  .dossier-list { display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; margin-top: 12px; }
+  .dossier-item {
+    display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); background: var(--surface-alt); font-size: 12.5px;
+  }
+  .dossier-item .ref { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dossier-item .status {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+    padding: 2px 7px; border-radius: 999px; flex: none;
+  }
+  .dossier-item .status.ok { color: var(--accent-dark); background: var(--accent-soft); }
+  .dossier-item .status.erreur { color: var(--danger); background: var(--danger-soft); }
+  .dossier-item .remove {
+    flex: none; border: none; background: none; cursor: pointer; color: var(--text-faint);
+    width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border-radius: 50%;
+  }
+  .dossier-item .remove:hover { background: var(--danger-soft); color: var(--danger); }
+  .import-note { font-size: 12px; color: var(--text-faint); margin-top: 10px; }
+  .empty-note { font-size: 12.5px; color: var(--text-faint); padding: 6px 2px; }
+
+  /* ---------- CTA ---------- */
+  .cta-wrap { position: sticky; bottom: 16px; margin-top: 8px; }
+  button.cta {
+    width: 100%; height: 50px; border: none; background: var(--cta); color: #fff;
+    border-radius: var(--radius-md); font-size: 15px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 8px 20px -8px rgba(232,85,42,.55);
+    transition: background .15s;
+  }
+  button.cta:hover:not(:disabled) { background: var(--cta-dark); }
+  button.cta:disabled { opacity: .45; cursor: default; box-shadow: none; }
+
+  .error { color: var(--danger); margin-top: 12px; font-size: 13.5px; }
+  .field-error { color: var(--danger); font-size: 12px; margin-top: 2px; }
+
+  /* ---------- Page 2 ---------- */
+  #page2 { display: none; }
+  .center-card { text-align: center; padding: 34px 26px; }
+  .spinner {
+    width: 34px; height: 34px; margin: 0 auto 16px; border-radius: 50%;
+    border: 3px solid var(--accent-soft); border-top-color: var(--accent);
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #page2 h2.big { font-family: var(--font-display); font-size: 19px; margin: 0 0 8px; }
+  #page2 .center-card p { font-size: 13.5px; color: var(--text-secondary); margin: 0 0 4px; line-height: 1.5; }
+  .waiting-count { font-size: 12.5px; color: var(--text-faint); margin-top: 10px; }
+
+  .success-icon { width: 42px; height: 42px; margin: 0 auto 14px; color: var(--accent); }
+  .radio-group { display: flex; gap: 8px; }
+  .radio-opt {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; height: 40px;
+    border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13.5px; font-weight: 500;
+    cursor: pointer; color: var(--text-secondary);
+  }
+  .radio-opt.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); }
+  .radio-opt input { display: none; }
+
+  @media (max-width: 560px) {
+    main { padding: 1.5rem 1.1rem 3rem; }
+    .row { flex-direction: column; }
+    .level-group { grid-template-columns: repeat(3, 1fr); }
+    .parcours-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <!-- ============ PAGE 1 ============ -->
+  <div id="page1">
+
+    <div class="topbar">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="12.5" stroke="currentColor" stroke-width="2" style="color:var(--accent)"/><circle cx="15" cy="15" r="4.5" fill="currentColor" style="color:var(--accent)"/></svg>
+        <span class="brand-name">Dossier Clair</span>
+      </div>
+      <span class="step-pill"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.4"/></svg> Étape 1 sur 2 — Vos préférences</span>
+    </div>
+
+    <h1>Évaluation des dossiers de candidature</h1>
+    <p class="sub">Estimation du risque locatif à partir de données financières et de signaux documentaires. Ne remplace pas une vérification manuelle des pièces.</p>
+
+    <span class="bien-tag"><span class="dot"></span> T2 · 45&nbsp;m² · <span id="bienQuartier">Quartier à préciser</span></span>
+
+    <!-- Dossier candidat -->
+    <section class="card">
+      <div class="card-head">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="4" y="2.5" width="10" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 6h5M6.5 9h5M6.5 12h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <h2>Dossier du candidat</h2>
+      </div>
+      <p class="card-desc">Pour une évaluation ponctuelle au cas par cas — facultatif si vous importez des dossiers ci-dessous.</p>
+
+      <form id="form" onsubmit="return false;">
+        <div class="row">
+          <div class="field">
+            <label class="field-label">Loyer demandé (€/mois)</label>
+            <input type="number" id="loyer" />
+          </div>
+          <div class="field">
+            <label class="field-label">Revenu net candidat (€/mois)</label>
+            <input type="number" id="revenuCandidat" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="field-label">Type de contrat</label>
+            <select id="typeContrat">
+              <option>CDI</option>
+              <option>CDD</option>
+              <option>Intérim</option>
+              <option>Freelance / indépendant</option>
+              <option>Étudiant</option>
+              <option>Retraité</option>
+              <option>Sans emploi</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">Ancienneté poste (mois)</label>
+            <input type="number" id="ancienneteMois" />
+          </div>
+        </div>
+
+        <label class="signal-line" style="padding-left:0">
+          <input type="checkbox" id="aGarant" />
+          <span style="cursor:pointer">Le candidat a un garant</span>
+        </label>
+
+        <div class="field" id="revenuGarantWrap" style="display:none">
+          <label class="field-label">Revenu net du garant (€/mois)</label>
+          <input type="number" id="revenuGarant" />
+        </div>
+
+        <div class="field">
+          <label class="field-label">Historique locatif déclaré</label>
+          <input type="text" id="historiqueLocatif" placeholder="ex : 3 quittances fournies, aucun impayé signalé" />
+        </div>
+
+        <div class="field">
+          <label class="field-label">Notes libres</label>
+          <textarea id="notesLibres" rows="3"></textarea>
+        </div>
+      </form>
+    </section>
+
+    <!-- Parcours -->
+    <section class="card">
+      <div class="card-head">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 15V9a2 2 0 012-2h6M14 3v6a2 2 0 01-2 2H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4" cy="15" r="1.6" stroke="currentColor" stroke-width="1.4"/><circle cx="14" cy="3" r="1.6" stroke="currentColor" stroke-width="1.4"/></svg>
+        <h2>Votre parcours</h2>
+      </div>
+      <p class="card-desc">Choisissez comment vous souhaitez procéder.</p>
+
+      <div class="parcours-grid" id="parcoursGrid"></div>
+
+      <div class="import-block" id="importBlock">
+        <div class="import-counter" id="importCounter">0 dossier prêt à être analysé</div>
+
+        <div class="tabs">
+          <button type="button" class="tab-btn active" id="tabLiensBtn">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5.7 8.3l2.6-2.6M6.4 3.4l.5-.5a2.4 2.4 0 013.4 3.4l-.5.5M7.6 10.6l-.5.5a2.4 2.4 0 01-3.4-3.4l.5-.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Liens DossierFacile
+          </button>
+          <button type="button" class="tab-btn" id="tabFichiersBtn">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 8.5V4.5A2 2 0 015 2.5h4a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V6.5A1.5 1.5 0 015.5 5H8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Fichiers (PDF / ZIP)
+          </button>
+        </div>
+
+        <div class="tab-panel active" id="tabLiensPanel">
+          <div class="field">
+            <label class="field-label">Un lien par ligne</label>
+            <textarea id="liensInput" rows="4" placeholder="https://dossierfacile.logement.gouv.fr/..."></textarea>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="tabFichiersPanel">
+          <div class="dropzone" id="dropzone">
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M13 17V6M13 6l-4 4M13 6l4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19v1.5A2.5 2.5 0 006.5 23h13a2.5 2.5 0 002.5-2.5V19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            <span>Glissez vos PDF ou une archive ZIP ici</span>
+            <button type="button" class="browse" id="browseBtn">Parcourir</button>
+            <input type="file" id="fileInput" multiple accept=".pdf,.zip" style="display:none" />
+          </div>
+        </div>
+
+        <div class="dossier-list" id="dossierList"></div>
+        <p class="import-note">L'analyse d'un grand nombre de dossiers peut prendre quelques minutes.</p>
+      </div>
+
+      <div class="import-block" id="presentationBienBlock" style="display:none">
+        <div class="field">
+          <label class="field-label">Emplacement du bien</label>
+          <input type="text" id="bienEmplacement" placeholder="ex : Paris 11e, quartier Voltaire" />
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label class="field-label">Présentation rapide du bien</label>
+          <textarea id="bienDescription" rows="3" placeholder="ex : T2 lumineux, 45 m², proche métro, refait à neuf..."></textarea>
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label class="field-label">Photos du bien</label>
+          <div class="dropzone" id="dropzonePhotos">
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M13 17V6M13 6l-4 4M13 6l4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19v1.5A2.5 2.5 0 006.5 23h13a2.5 2.5 0 002.5-2.5V19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            <span>Glissez vos photos ici</span>
+            <button type="button" class="browse" id="browsePhotosBtn">Parcourir</button>
+            <input type="file" id="photoInput" multiple accept="image/*" style="display:none" />
+          </div>
+          <div class="dossier-list" id="photoList"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="cta-wrap">
+      <button class="cta" id="ctaBtn" type="button">Classer les dossiers</button>
+    </div>
+    <p class="error" id="error" style="display:none"></p>
+  </div>
+
+  <!-- ============ PAGE 2 ============ -->
+  <div id="page2">
+    <div class="topbar">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="12.5" stroke="currentColor" stroke-width="2" style="color:var(--accent)"/><circle cx="15" cy="15" r="4.5" fill="currentColor" style="color:var(--accent)"/></svg>
+        <span class="brand-name">Dossier Clair</span>
+      </div>
+      <span class="step-pill"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.4"/></svg> Étape 2 sur 2 — Vos coordonnées</span>
+    </div>
+
+    <!-- État attente -->
+    <section class="card center-card" id="attenteCard">
+      <div class="spinner"></div>
+      <h2 class="big" id="attenteTitre"></h2>
+      <p id="attenteMessage"></p>
+      <p class="waiting-count" id="attenteCount"></p>
+    </section>
+
+    <!-- État formulaire -->
+    <section class="card" id="formulaireCard">
+      <div class="card-head">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 5.5A2.5 2.5 0 015.5 3h7A2.5 2.5 0 0115 5.5v7a2.5 2.5 0 01-2.5 2.5h-7A2.5 2.5 0 013 12.5v-7z" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 6l4.5 3.5L13.5 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h2 id="formulaireTitre"></h2>
+      </div>
+      <p class="card-desc" id="formulaireMessage" style="margin-bottom:16px"></p>
+
+      <form id="leadForm" onsubmit="return false;">
+        <div class="row">
+          <div class="field">
+            <label class="field-label">Prénom*</label>
+            <input type="text" id="leadPrenom" />
+            <span class="field-error" id="err-leadPrenom"></span>
+          </div>
+          <div class="field">
+            <label class="field-label">NOM*</label>
+            <input type="text" id="leadNom" />
+            <span class="field-error" id="err-leadNom"></span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Vous êtes*</label>
+          <div class="radio-group" id="leadTypeGroup">
+            <label class="radio-opt" data-value="Particulier"><input type="radio" name="leadType" /> Particulier</label>
+            <label class="radio-opt" data-value="Professionnel"><input type="radio" name="leadType" /> Professionnel</label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="field-label">E-mail*</label>
+            <input type="email" id="leadEmail" />
+            <span class="field-error" id="err-leadEmail"></span>
+          </div>
+          <div class="field">
+            <label class="field-label">Numéro de téléphone*</label>
+            <input type="tel" id="leadTel" />
+            <span class="field-error" id="err-leadTel"></span>
+          </div>
+        </div>
+
+        <button class="cta" id="leadSubmitBtn" type="button">Recevoir mon résultat</button>
+      </form>
+    </section>
+
+    <!-- État confirmation -->
+    <section class="card center-card" id="confirmationCard" style="display:none">
+      <svg class="success-icon" viewBox="0 0 42 42" fill="none"><circle cx="21" cy="21" r="18" stroke="currentColor" stroke-width="2"/><path d="M13 21.5l5.5 5.5L29 15.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h2 class="big" id="confirmationMessage"></h2>
+    </section>
+  </div>
+
+</main>
+
+<script>
+/* ===== TEXTES MODIFIABLES ===== */
+// Parcours "j'ai des dossiers à classer"
+const TITRE_ATTENTE = "Votre classement est en cours de préparation";
+const MESSAGE_ATTENTE = "Nous analysons vos dossiers selon les critères que vous avez choisis. Cela prend quelques minutes.";
+
+// Parcours "me contacter après avoir trouvé un locataire"
+const TITRE_ATTENTE_RECHERCHE = "Votre recherche est activée";
+const MESSAGE_ATTENTE_RECHERCHE = "Nous recherchons pour vous, sur les principales plateformes, un locataire correspondant à vos critères.";
+
+// Communs aux deux parcours
+const TITRE_FORMULAIRE = "Recevez votre résultat";
+const MESSAGE_FORMULAIRE = "Laissez-nous vos coordonnées, nous vous contactons dès que votre résultat est prêt.";
+const MESSAGE_CONFIRMATION = "Merci ! Vous serez contacté(e) très prochainement.";
+/* ================================ */
+
+let parcours = "dossiers"; // "dossiers" | "recherche"
+let importTab = "liens";
+let dossiers = []; // { id, ref, status: 'ok' | 'erreur' }
+let dossierIdSeq = 1;
+let photos = []; // { id, ref }
+let photoIdSeq = 1;
+
+document.getElementById("aGarant").addEventListener("change", (e) => {
+  document.getElementById("revenuGarantWrap").style.display = e.target.checked ? "flex" : "none";
+});
+
+/* ---------- Parcours ---------- */
+function renderParcours() {
+  const el = document.getElementById("parcoursGrid");
+  const options = [
+    {
+      key: "dossiers",
+      title: "J'ai déjà des dossiers à classer",
+      desc: "Importez vos dossiers de candidature, nous les classons selon vos critères.",
+      icon: `<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="2.5" width="12" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M6 6h6M6 9h6M6 12h3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`,
+    },
+    {
+      key: "recherche",
+      title: "Être recontacté(e) quand un profil correspond",
+      desc: "Nous surveillons les nouvelles candidatures sur les principales plateformes (Leboncoin, PAP, etc.) et vous alertons dès qu'un profil correspond.",
+      icon: `<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M12 12l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+    },
+  ];
+  el.innerHTML = "";
+  options.forEach((opt) => {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "parcours-card" + (parcours === opt.key ? " active" : "");
+    card.innerHTML = `
+      <div class="top">${opt.icon}<span class="check"><svg viewBox="0 0 11 11" fill="none"><path d="M2 5.5l2.2 2.2L9 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+      <div class="title">${opt.title}</div>
+      <p class="desc">${opt.desc}</p>
+    `;
+    card.onclick = () => {
+      parcours = opt.key;
+      renderParcours();
+      updateImportVisibility();
+      updateCta();
+    };
+    el.appendChild(card);
+  });
+}
+
+function updateImportVisibility() {
+  document.getElementById("importBlock").style.display = parcours === "dossiers" ? "block" : "none";
+  document.getElementById("presentationBienBlock").style.display = parcours === "recherche" ? "block" : "none";
+}
+
+/* ---------- Import : tabs, liens, fichiers, liste ---------- */
+function setImportTab(tab) {
+  importTab = tab;
+  document.getElementById("tabLiensBtn").classList.toggle("active", tab === "liens");
+  document.getElementById("tabFichiersBtn").classList.toggle("active", tab === "fichiers");
+  document.getElementById("tabLiensPanel").classList.toggle("active", tab === "liens");
+  document.getElementById("tabFichiersPanel").classList.toggle("active", tab === "fichiers");
+}
+document.getElementById("tabLiensBtn").onclick = () => setImportTab("liens");
+document.getElementById("tabFichiersBtn").onclick = () => setImportTab("fichiers");
+
+document.getElementById("liensInput").addEventListener("input", (e) => {
+  const raw = e.target.value.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
+  // Remet à jour uniquement les entrées issues des liens (on garde les fichiers déjà ajoutés)
+  dossiers = dossiers.filter((d) => d.source !== "lien");
+  raw.forEach((url) => {
+    const valid = /dossierfacile/i.test(url);
+    dossiers.push({ id: dossierIdSeq++, ref: url, status: valid ? "ok" : "erreur", source: "lien" });
+  });
+  renderDossierList();
+});
+
+const browseBtn = document.getElementById("browseBtn");
+const fileInput = document.getElementById("fileInput");
+const dropzone = document.getElementById("dropzone");
+browseBtn.onclick = () => fileInput.click();
+fileInput.addEventListener("change", (e) => addFiles(e.target.files));
+["dragover", "dragenter"].forEach((evt) => dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.style.borderColor = "var(--accent)"; }));
+["dragleave", "drop"].forEach((evt) => dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.style.borderColor = "var(--border)"; }));
+dropzone.addEventListener("drop", (e) => addFiles(e.dataTransfer.files));
+
+function addFiles(fileList) {
+  Array.from(fileList).forEach((f) => {
+    dossiers.push({ id: dossierIdSeq++, ref: f.name, status: "ok", source: "fichier" });
+  });
+  renderDossierList();
+}
+
+function removeDossier(id) {
+  dossiers = dossiers.filter((d) => d.id !== id);
+  renderDossierList();
+}
+
+/* ---------- Photos du bien ---------- */
+const browsePhotosBtn = document.getElementById("browsePhotosBtn");
+const photoInput = document.getElementById("photoInput");
+const dropzonePhotos = document.getElementById("dropzonePhotos");
+browsePhotosBtn.onclick = () => photoInput.click();
+photoInput.addEventListener("change", (e) => addPhotos(e.target.files));
+["dragover", "dragenter"].forEach((evt) => dropzonePhotos.addEventListener(evt, (e) => { e.preventDefault(); dropzonePhotos.style.borderColor = "var(--accent)"; }));
+["dragleave", "drop"].forEach((evt) => dropzonePhotos.addEventListener(evt, (e) => { e.preventDefault(); dropzonePhotos.style.borderColor = "var(--border)"; }));
+dropzonePhotos.addEventListener("drop", (e) => addPhotos(e.dataTransfer.files));
+
+function addPhotos(fileList) {
+  Array.from(fileList).forEach((f) => {
+    photos.push({ id: photoIdSeq++, ref: f.name });
+  });
+  renderPhotoList();
+}
+
+function removePhoto(id) {
+  photos = photos.filter((p) => p.id !== id);
+  renderPhotoList();
+}
+
+function renderPhotoList() {
+  const list = document.getElementById("photoList");
+  if (photos.length === 0) {
+    list.innerHTML = "";
+    return;
+  }
+  list.innerHTML = "";
+  photos.forEach((p) => {
+    const item = document.createElement("div");
+    item.className = "dossier-item";
+    item.innerHTML = `
+      <span class="ref">${escapeHtml(p.ref)}</span>
+      <button type="button" class="remove" aria-label="Retirer">✕</button>
+    `;
+    item.querySelector(".remove").onclick = () => removePhoto(p.id);
+    list.appendChild(item);
+  });
+}
+
+function renderDossierList() {
+  const list = document.getElementById("dossierList");
+  const counter = document.getElementById("importCounter");
+  counter.textContent = dossiers.length === 0
+    ? "0 dossier prêt à être analysé"
+    : `${dossiers.length} dossier${dossiers.length > 1 ? "s" : ""} prêt${dossiers.length > 1 ? "s" : ""} à être analysé${dossiers.length > 1 ? "s" : ""}`;
+
+  if (dossiers.length === 0) {
+    list.innerHTML = `<p class="empty-note">Aucun dossier ajouté pour l'instant.</p>`;
+  } else {
+    list.innerHTML = "";
+    dossiers.forEach((d) => {
+      const item = document.createElement("div");
+      item.className = "dossier-item";
+      item.innerHTML = `
+        <span class="ref">${escapeHtml(d.ref)}</span>
+        <span class="status ${d.status}">${d.status === "ok" ? "OK" : "À vérifier"}</span>
+        <button type="button" class="remove" aria-label="Retirer">✕</button>
+      `;
+      item.querySelector(".remove").onclick = () => removeDossier(d.id);
+      list.appendChild(item);
+    });
+  }
+  updateCta();
+}
+
+/* ---------- CTA page 1 ---------- */
+function updateCta() {
+  const btn = document.getElementById("ctaBtn");
+  if (parcours === "dossiers") {
+    const n = dossiers.length;
+    btn.textContent = n > 0 ? `Classer les ${n} dossier${n > 1 ? "s" : ""}` : "Classer les dossiers";
+    btn.disabled = n === 0;
+  } else {
+    btn.textContent = "Activer ma recherche";
+    btn.disabled = false;
+  }
+}
+
+document.getElementById("ctaBtn").addEventListener("click", goToPage2);
+
+/* ---------- Passage page 1 -> page 2 ---------- */
+function goToPage2() {
+  document.getElementById("page1").style.display = "none";
+  document.getElementById("page2").style.display = "block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  const attenteTitre = document.getElementById("attenteTitre");
+  const attenteMessage = document.getElementById("attenteMessage");
+  const attenteCount = document.getElementById("attenteCount");
+
+  if (parcours === "dossiers") {
+    attenteTitre.textContent = TITRE_ATTENTE;
+    attenteMessage.textContent = MESSAGE_ATTENTE;
+    attenteCount.textContent = `${dossiers.length} dossier${dossiers.length > 1 ? "s" : ""} en cours d'analyse`;
+    attenteCount.style.display = "block";
+  } else {
+    attenteTitre.textContent = TITRE_ATTENTE_RECHERCHE;
+    attenteMessage.textContent = MESSAGE_ATTENTE_RECHERCHE;
+    attenteCount.style.display = "none";
+  }
+
+  document.getElementById("formulaireTitre").textContent = TITRE_FORMULAIRE;
+  document.getElementById("formulaireMessage").textContent = MESSAGE_FORMULAIRE;
+
+  // Envoi en tâche de fond, n'affecte pas l'écran affiché
+  const payload = {
+    parcours,
+    loyer: document.getElementById("loyer").value,
+    revenuCandidat: document.getElementById("revenuCandidat").value,
+    typeContrat: document.getElementById("typeContrat").value,
+    ancienneteMois: document.getElementById("ancienneteMois").value,
+    aGarant: document.getElementById("aGarant").checked,
+    revenuGarant: document.getElementById("revenuGarant").value,
+    historiqueLocatif: document.getElementById("historiqueLocatif").value,
+    notesLibres: document.getElementById("notesLibres").value,
+    dossiers: dossiers.map((d) => ({ ref: d.ref, source: d.source, status: d.status })),
+    bienEmplacement: document.getElementById("bienEmplacement").value,
+    bienDescription: document.getElementById("bienDescription").value,
+    photos: photos.map((p) => p.ref),
+  };
+  fetch("/api/analyze", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }).catch(() => {});
+}
+
+/* ---------- Formulaire de coordonnées ---------- */
+let leadType = "";
+document.querySelectorAll(".radio-opt").forEach((opt) => {
+  opt.addEventListener("click", () => {
+    document.querySelectorAll(".radio-opt").forEach((o) => o.classList.remove("active"));
+    opt.classList.add("active");
+    leadType = opt.dataset.value;
+  });
+});
+
+function setFieldError(id, message) {
+  document.getElementById("err-" + id).textContent = message || "";
+}
+
+document.getElementById("leadSubmitBtn").addEventListener("click", async () => {
+  const prenom = document.getElementById("leadPrenom").value.trim();
+  const nom = document.getElementById("leadNom").value.trim();
+  const email = document.getElementById("leadEmail").value.trim();
+  const tel = document.getElementById("leadTel").value.trim();
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  let ok = true;
+  setFieldError("leadPrenom", prenom ? "" : (ok = false, "Champ requis"));
+  setFieldError("leadNom", nom ? "" : (ok = false, "Champ requis"));
+  setFieldError("leadEmail", emailValid ? "" : (ok = false, "E-mail invalide"));
+  setFieldError("leadTel", tel ? "" : (ok = false, "Champ requis"));
+  if (!leadType) ok = false;
+
+  if (!ok) return;
+
+  const btn = document.getElementById("leadSubmitBtn");
+  btn.disabled = true;
+  btn.textContent = "Envoi…";
+
+  try {
+    await fetch("/api/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prenom, nom, type: leadType, email, tel, parcours }),
+    }).catch(() => {});
+  } finally {
+    document.getElementById("attenteCard").style.display = "none";
+    document.getElementById("formulaireCard").style.display = "none";
+    document.getElementById("confirmationCard").style.display = "block";
+    document.getElementById("confirmationMessage").textContent = MESSAGE_CONFIRMATION;
+  }
+});
+
+/* ---------- Utils ---------- */
+function escapeHtml(s) {
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+/* ---------- Init ---------- */
+renderParcours();
+updateImportVisibility();
+renderDossierList();
+renderPhotoList();
+</script>
+</body>
+</html>
