@@ -679,7 +679,7 @@ async function envoyerVersSupabase() {
 
   const liensDossierFacile = dossiers.filter((d) => d.source === "lien").map((d) => d.ref);
 
-  const { data, error } = await supabaseClient
+  const { error } = await supabaseClient
     .from("candidatures")
     .insert({
       parcours,
@@ -695,15 +695,12 @@ async function envoyerVersSupabase() {
       bien_description: document.getElementById("bienDescription").value,
       dossiers: { fichiers: cheminsDossiers, liens: liensDossierFacile },
       photos: cheminsPhotos,
-    })
-    .select()
-    .single();
+    });
 
   if (error) {
     console.error("Échec insertion candidature :", error);
     return;
   }
-  currentCandidatureId = data.id;
 }
 
 let leadType = "";
