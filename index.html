@@ -656,11 +656,11 @@ function goToPage2() {
   envoyerVersSupabase().catch((err) => console.error("Erreur envoi Supabase :", err));
 }
 
-async function uploaderFichiers(items) {
+async function uploaderFichiers(items, sousDossier) {
   const chemins = [];
   for (const item of items) {
     if (!item.file) continue;
-    const cheminUnique = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${item.file.name}`;
+    const cheminUnique = `${sousDossier}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${item.file.name}`;
     const { error } = await supabaseClient.storage.from("documents").upload(cheminUnique, item.file);
     if (error) {
       console.error("Échec upload", item.file.name, error);
@@ -673,10 +673,10 @@ async function uploaderFichiers(items) {
 
 async function envoyerVersSupabase() {
   const [cheminsDossiers, cheminsPhotos] = await Promise.all([
-    uploaderFichiers(dossiers),
-    uploaderFichiers(photos),
+    uploaderFichiers(dossiers, "dossiers"),
+    uploaderFichiers(photos, "photos"),
   ]);
-
+ 
   const liensDossierFacile = dossiers.filter((d) => d.source === "lien").map((d) => d.ref);
 
   const { error } = await supabaseClient
