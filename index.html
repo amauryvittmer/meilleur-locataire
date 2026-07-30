@@ -245,7 +245,7 @@
     </div>
 
     <h1>Évaluation des dossiers de candidature</h1>
-    <p class="sub">Estimation du risque locatif à partir de données financières et de signaux documentaires. L'algorithme de meilleur-locataire.com ne remplace pas une vérification manuelle des dossiers.</p>
+    <p class="sub">Définissez vos critères, et recevez une liste des meilleurs locataires.</p>
 
     <!-- Caractéristiques du bien -->
     <section class="card">
@@ -258,12 +258,11 @@
         <div class="field">
           <label class="field-label">Pièces</label>
           <select id="pieces">
-            <option>Studio</option>
-            <option selected>T2</option>
-            <option>T1</option>
-            <option>T3</option>
-            <option>T4</option>
-            <option>T5 et plus</option>
+            <option>1 pièce</option>
+            <option selected>2 pièces</option>
+            <option>3 pièces</option>
+            <option>4 pièces</option>
+            <option>5 pièces et plus</option>
           </select>
         </div>
         <div class="field">
@@ -271,8 +270,8 @@
           <input type="number" id="taille" placeholder="45" />
         </div>
         <div class="field">
-          <label class="field-label">Ville / Arrondissement</label>
-          <input type="text" id="arrondissement" placeholder="ex : Paris 11e" />
+          <label class="field-label">Code Postal</label>
+          <input type="text" id="arrondissement" placeholder="ex : 75011" />
         </div>
       </div>
     </section>
@@ -283,7 +282,7 @@
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="4" y="2.5" width="10" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 6h5M6.5 9h5M6.5 12h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         <h2>Dossier du candidat</h2>
       </div>
-      <p class="card-desc">Critères non-négociables de classement des candidats.</p>
+      <p class="card-desc">Critères indispensables de classement des candidats.</p>
 
       <form id="form" onsubmit="return false;">
         <div class="field">
@@ -429,8 +428,8 @@
 
       <div class="import-block" id="presentationBienBlock" style="display:none">
         <div class="field">
-          <label class="field-label">Présentation rapide du bien</label>
-          <textarea id="bienDescriptionLibre" rows="3" placeholder="ex : lumineux, proche métro, refait à neuf..."></textarea>
+          <label class="field-label">Description du bien</label>
+          <textarea id="bienDescriptionLibre" rows="3" placeholder="ex : lumineux, disponible à partir du 20 septembre..."></textarea>
         </div>
 
         <div class="field" style="margin-top:14px">
